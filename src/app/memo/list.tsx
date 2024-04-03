@@ -1,15 +1,16 @@
 import { StyleSheet, View } from "react-native";
-import Header from "../../components/Header ";
 import MemoListItem from "../../components/MemoListItem";
 import CircleButton from "../../components/CircleButton";
 import Icon from "../../components/Icon";
+import { router } from "expo-router";
+
+const handlePressCircleButton = (): void => {
+  router.push("/memo/create");
+};
 
 const List = (): JSX.Element => {
   return (
     <View style={styles.container}>
-      {/* ヘッダー */}
-      <Header />
-
       {/* メモリスト */}
       <View>
         {[1, 2, 3, 4, 5].map(() => {
@@ -18,7 +19,7 @@ const List = (): JSX.Element => {
       </View>
 
       {/* サークルボタン */}
-      <CircleButton>
+      <CircleButton onPress={handlePressCircleButton}>
         <Icon name="plus" size={40} color="#ffffff" />
       </CircleButton>
     </View>
