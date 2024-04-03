@@ -1,10 +1,11 @@
-import { StyleSheet, TextInput, View, KeyboardAvoidingView } from "react-native";
+import { StyleSheet, TextInput, View } from "react-native";
 import CircleButton from "../../components/CircleButton";
 import Icon from "../../components/Icon";
 import { router } from "expo-router";
 import { collection, addDoc, Timestamp } from "firebase/firestore";
 import { auth, db } from "../../config";
 import { useState } from "react";
+import KeyboardSafeView from "../../components/KeybordAvoidingView";
 
 const handlePressCircleButton = (bodyText: string): void => {
   if (!auth.currentUser) {
@@ -28,7 +29,7 @@ const handlePressCircleButton = (bodyText: string): void => {
 const Create = (): JSX.Element => {
   const [bodyText, setBodyText] = useState("");
   return (
-    <KeyboardAvoidingView style={styles.container} behavior="height">
+    <KeyboardSafeView style={styles.container}>
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
@@ -37,6 +38,7 @@ const Create = (): JSX.Element => {
           }}
           multiline
           value={bodyText}
+          autoFocus
         />
       </View>
 
@@ -47,7 +49,7 @@ const Create = (): JSX.Element => {
       >
         <Icon name="check" size={40} color="#ffffff" />
       </CircleButton>
-    </KeyboardAvoidingView>
+    </KeyboardSafeView>
   );
 };
 
