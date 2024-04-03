@@ -3,7 +3,8 @@ import { StyleSheet } from "react-native";
 import { Redirect, router } from "expo-router";
 import { useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../config";
+import { auth, db } from "../config";
+import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 
 const Index = (): JSX.Element => {
   useEffect(() => {

@@ -3,14 +3,50 @@ import MemoListItem from "../../components/MemoListItem";
 import CircleButton from "../../components/CircleButton";
 import Icon from "../../components/Icon";
 import { router, useNavigation } from "expo-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import LogoutButton from "../../components/LogoutButton";
+import { auth, db } from "../../config";
+import {
+  collection,
+  connectFirestoreEmulator,
+  onSnapshot,
+  orderBy,
+  query,
+} from "firebase/firestore";
+import { Memo } from "../../../types/memo";
 
 const handlePressCircleButton = (): void => {
   router.push("/memo/create");
 };
 
 const List = (): JSX.Element => {
+  console.log("------------------->");
+
+  const [memos, setMemos] = useState<Memo[]>([]);
+  useEffect(() => {
+    if (!auth.currentUser) {
+      return;
+    }
+    const ref = collection(db, `users/${auth.currentUser.uid}/memos`);
+    const q = query(ref, orderBy("updatedAt", "desc"));
+    const unsubscribe = onSnapshot(q, (snapShot): void => {
+      const remoteMemos: Memo[] = [];
+      snapShot.forEach((doc) => {
+        console.log("===============>", doc.data());
+
+        const { bodyText, updatedAt } = doc.data();
+        remoteMemos.push({
+          id: doc.id,
+          bodyText,
+          updatedAt,
+        });
+      });
+      setMemos(remoteMemos);
+    });
+
+    return unsubscribe;
+  }, []);
+
   const navigation = useNavigation();
   useEffect(() => {
     navigation.setOptions({
@@ -24,9 +60,9 @@ const List = (): JSX.Element => {
     <View style={styles.container}>
       {/* メモリスト */}
       <View>
-        {[1, 2, 3, 4, 5].map(() => {
-          return <MemoListItem />;
-        })}
+        {memos.map((memo) => (
+          <MemoListItem memo={memo} />
+        ))}
       </View>
 
       {/* サークルボタン */}
