@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import CircleButton from "../../components/CircleButton";
 import Icon from "../../components/Icon";
@@ -6,14 +6,17 @@ import { router, useLocalSearchParams } from "expo-router";
 import { type Memo } from "../../../types/memo";
 import { useEffect, useState } from "react";
 import { auth, db } from "../../config";
-import { doc, onSnapshot } from "firebase/firestore";
+import { doc, getDoc, onSnapshot } from "firebase/firestore";
 
-const handlePressCircleButton = (): void => {
-  router.push("/memo/edit");
+const handlePressCircleButton = (id: string): void => {
+  router.push({
+    pathname: "/memo/edit",
+    params: { id },
+  });
 };
 
 const Detail = (): JSX.Element => {
-  const { id } = useLocalSearchParams();
+  const id = String(useLocalSearchParams().id);
   const [memo, setMemo] = useState<Memo | null>(null);
   useEffect(() => {
     if (!auth.currentUser) {
@@ -43,7 +46,12 @@ const Detail = (): JSX.Element => {
       <ScrollView style={styles.memoBody}>
         <Text style={styles.memoBodyText}>{memo?.bodyText}</Text>
       </ScrollView>
-      <CircleButton style={{ top: 60, bottom: "auto" }} onPress={handlePressCircleButton}>
+      <CircleButton
+        style={{ top: 60, bottom: "auto" }}
+        onPress={() => {
+          handlePressCircleButton(id);
+        }}
+      >
         <Icon name="pencil" size={40} color="#ffffff" />
       </CircleButton>
     </View>
