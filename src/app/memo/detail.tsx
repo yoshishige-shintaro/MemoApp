@@ -3,26 +3,45 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 import CircleButton from "../../components/CircleButton";
 import Icon from "../../components/Icon";
 import { router, useLocalSearchParams } from "expo-router";
+import { type Memo } from "../../../types/memo";
+import { useEffect, useState } from "react";
+import { auth, db } from "../../config";
+import { doc, onSnapshot } from "firebase/firestore";
 
 const handlePressCircleButton = (): void => {
   router.push("/memo/edit");
 };
 
 const Detail = (): JSX.Element => {
-  const params = useLocalSearchParams();
+  const { id } = useLocalSearchParams();
+  const [memo, setMemo] = useState<Memo | null>(null);
+  useEffect(() => {
+    if (!auth.currentUser) {
+      return;
+    }
+    const ref = doc(db, `users/${auth.currentUser.uid}/memos`, String(id));
+    // firestore の変更をかんし
+    const unSubscribe = onSnapshot(ref, (memoDoc) => {
+      const { bodyText, updatedAt } = memoDoc.data() as Memo;
+      setMemo({
+        id: memoDoc.id,
+        bodyText,
+        updatedAt,
+      });
+    });
+
+    return unSubscribe;
+  }, []);
   return (
     <View style={styles.container}>
       <View style={styles.memoHeader}>
-        <Text style={styles.memoTitle}>買い物リスト</Text>
-        <Text style={styles.memoDate}>2023年10月1日 10:00</Text>
+        <Text numberOfLines={1} style={styles.memoTitle}>
+          {memo?.bodyText}
+        </Text>
+        <Text style={styles.memoDate}>{memo?.updatedAt.toDate().toLocaleString("ja-jp")}</Text>
       </View>
       <ScrollView style={styles.memoBody}>
-        <Text style={styles.memoBodyText}>
-          買い物リスト たくさん買います。たくさん買います。 たくさん買います。たくさん買います。
-          たくさん買います。たくさん買います。 たくさん買います。たくさん買います。
-          たくさん買います。たくさん買います。 たくさん買います。たくさん買います。
-          たくさん買います。 たくさん買います。
-        </Text>
+        <Text style={styles.memoBodyText}>{memo?.bodyText}</Text>
       </ScrollView>
       <CircleButton style={{ top: 60, bottom: "auto" }} onPress={handlePressCircleButton}>
         <Icon name="pencil" size={40} color="#ffffff" />
@@ -59,11 +78,11 @@ const styles = StyleSheet.create({
   },
 
   memoBody: {
-    paddingVertical: 32,
     paddingHorizontal: 27,
   },
 
   memoBodyText: {
+    paddingVertical: 32,
     fontSize: 16,
     lineHeight: 24,
     color: "#000000",
