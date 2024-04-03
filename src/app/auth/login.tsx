@@ -1,11 +1,21 @@
-import { StyleSheet, Text, View, TextInput, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert } from "react-native";
 import Button from "../../components/Button";
 import { Link, router } from "expo-router";
 import { useState } from "react";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../config";
 
-const handlePress = (): void => {
+const handlePress = (email: string, password: string): void => {
   // ログイン処理
-  router.replace("/memo/list");
+  signInWithEmailAndPassword(auth, email, password)
+    .then(() => {
+      router.replace("/memo/list");
+    })
+    .catch((err) => {
+      const { code, message } = err;
+      console.log(code, message);
+      Alert.alert(message);
+    });
 };
 
 const Login = (): JSX.Element => {
@@ -38,11 +48,16 @@ const Login = (): JSX.Element => {
           secureTextEntry
           textContentType="password"
         />
-        <Button label="Submit" onPress={handlePress} />
+        <Button
+          label="Submit"
+          onPress={() => {
+            handlePress(email, password);
+          }}
+        />
         <View style={styles.footer}>
           <Text style={styles.footerText}>Not registered?</Text>
           {/* asChild -> 他の要素を入れ子にする場合に必要。 */}
-          <Link href={"/auth/sign_up"} asChild>
+          <Link href={"/auth/sign_up"} asChild replace>
             <TouchableOpacity>
               <Text style={styles.footerLink}>Sign up here!</Text>
             </TouchableOpacity>
