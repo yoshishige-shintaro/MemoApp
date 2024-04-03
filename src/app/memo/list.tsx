@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { FlatList, StyleSheet, Text, View } from "react-native";
 import MemoListItem from "../../components/MemoListItem";
 import CircleButton from "../../components/CircleButton";
 import Icon from "../../components/Icon";
@@ -20,8 +20,6 @@ const handlePressCircleButton = (): void => {
 };
 
 const List = (): JSX.Element => {
-  console.log("------------------->");
-
   const [memos, setMemos] = useState<Memo[]>([]);
   useEffect(() => {
     if (!auth.currentUser) {
@@ -32,8 +30,6 @@ const List = (): JSX.Element => {
     const unsubscribe = onSnapshot(q, (snapShot): void => {
       const remoteMemos: Memo[] = [];
       snapShot.forEach((doc) => {
-        console.log("===============>", doc.data());
-
         const { bodyText, updatedAt } = doc.data();
         remoteMemos.push({
           id: doc.id,
@@ -58,12 +54,7 @@ const List = (): JSX.Element => {
 
   return (
     <View style={styles.container}>
-      {/* メモリスト */}
-      <View>
-        {memos.map((memo) => (
-          <MemoListItem memo={memo} />
-        ))}
-      </View>
+      <FlatList data={memos} renderItem={({ item }) => <MemoListItem memo={item} />} />
 
       {/* サークルボタン */}
       <CircleButton onPress={handlePressCircleButton}>
